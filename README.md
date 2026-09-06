@@ -41,9 +41,17 @@ For each press release:
 
 ## Validation
 
-`scripts/validate.py` checks three things separately so one kind of failure doesn't mask another: **schema** (required fields present), **completeness** (how often each extracted field is actually populated), and **sanity** (duplicate URLs, near-empty bodies, out-of-range ages, unparseable dates). It flags a record "usable for analysis" only if it has both a location and a normalized date and isn't a duplicate.
+`scripts/validate.py` checks three things separately so one kind of failure doesn't mask another: **schema** (required fields present), **completeness** (how often each extracted field is actually populated), and **sanity** (duplicate URLs, near-empty bodies, out-of-range ages, unparseable dates). It flags a record "usable for analysis" only if it has both a location and a normalized date and isn't a duplicate. [`tests/test_validate.py`](tests/test_validate.py) covers all three checks directly.
 
-The extraction rules are tested against real dataset excerpts (not invented examples) in [`tests/test_extract.py`](tests/test_extract.py) — 15 tests covering datelines, both person-naming patterns, agency/money/quantity extraction, action classification, and HTML parsing, all passing. [`tests/test_pipeline_smoke.py`](tests/test_pipeline_smoke.py) runs the full extract → validate flow end-to-end on a small hand-picked sample, including a deliberately malformed row, to confirm the pipeline degrades gracefully instead of crashing on bad data. A sample report from that smoke test is in [`notes/validation_report_sample.md`](notes/validation_report_sample.md); it understates real coverage because the sample rows use the dataset's truncated preview text, not full release bodies.
+The extraction rules are tested against real dataset excerpts (not invented examples) in [`tests/test_extract.py`](tests/test_extract.py) — 17 tests covering datelines, both person-naming patterns, agency/money/quantity extraction, action classification, and HTML parsing, all passing. [`tests/test_pipeline_smoke.py`](tests/test_pipeline_smoke.py) runs the full extract → validate flow end-to-end on a small hand-picked sample, including a deliberately malformed row, to confirm the pipeline degrades gracefully instead of crashing on bad data. A sample report from that smoke test is in [`notes/validation_report_sample.md`](notes/validation_report_sample.md); it understates real coverage because the sample rows use the dataset's truncated preview text, not full release bodies.
+
+## Tech stack
+
+- Python 3
+- [`datasets`](https://pypi.org/project/datasets/) (Hugging Face, dataset loading)
+- `beautifulsoup4` + `lxml` (HTML parsing)
+- `pandas` (dataframes, CSV/JSONL output)
+- `pytest` for the extraction, validation, and pipeline tests
 
 ## Project structure
 
@@ -51,10 +59,22 @@ The extraction rules are tested against real dataset excerpts (not invented exam
 - `scripts/validate.py` — schema, completeness, and sanity-check validation
 - `scripts/pipeline.py` — CLI entrypoint: load dataset → extract → validate → save
 - `tests/test_extract.py` — unit tests against real dataset excerpts
+- `tests/test_validate.py` — unit tests for the schema/completeness/sanity checks
 - `tests/test_pipeline_smoke.py` — small end-to-end integration test
 - `notes/dataset-notes.md` — dataset structure, extraction decisions, and known limitations
 - `notes/validation_report_sample.md` — sample validation report
 - `LICENSE`
+
+## Setup
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+python scripts/pipeline.py --out data/extracted.csv --report notes/validation_report.md
+```
+
+Run the tests with `pytest tests/`.
 
 ## Limitations
 

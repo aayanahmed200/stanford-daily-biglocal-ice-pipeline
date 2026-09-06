@@ -146,7 +146,7 @@ def test_extract_record_sets_text_field_from_html_when_no_full_text():
     assert len(record["text"].split()) > 0
 
 
-
+def test_extract_agencies():
     agencies = extract_agencies(TAMPA_TEXT)
     assert "HSI" in agencies
 

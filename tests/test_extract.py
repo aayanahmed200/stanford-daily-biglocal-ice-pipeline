@@ -71,6 +71,19 @@ def test_extract_dateline_none_when_no_dash_lead():
     assert rest == "No dateline here at all, just prose."
 
 
+def test_extract_dateline_ignores_update_prefix():
+    # "UPDATE - ..." reads like a dateline (all-caps word, then a dash) but
+    # isn't a location -- ICE uses it to flag a follow-up to an earlier
+    # release.
+    text = (
+        "UPDATE - Suspect previously reported at large has been taken "
+        "into custody."
+    )
+    location, rest = extract_dateline(text)
+    assert location is None
+    assert rest == text
+
+
 def test_extract_people_two_names_phoenix():
     people = extract_people(PHOENIX_TEXT)
     names = {p["name"] for p in people}
@@ -146,6 +159,53 @@ def test_extract_record_sets_text_field_from_html_when_no_full_text():
     assert len(record["text"].split()) > 0
 
 
+def test_extract_record_handles_nan_html_from_left_merge():
+    # Regression test: pipeline.py left-merges the default and html subsets
+    # on `url`. A row with no match in the html subset gets `html = nan` (a
+    # float), not None or "" -- `bool(float("nan"))` is True, so the old
+    # `if example.get("html"):` guard treated it as real content and called
+    # parse_html(nan), which crashed with a TypeError inside BeautifulSoup.
+    example = {
+        "url": "https://www.ice.gov/news/releases/unmatched-row",
+        "title": "Some title",
+        "topics": "Narcotics",
+        "html": float("nan"),
+    }
+    record = extract_record(dict(example))  # must not raise
+    assert record["text"] == ""
+    assert record["extracted_people"] == []
+    assert record["money_mentioned"] == []
+    assert record["action_type"] == "other"
+
+
+def test_extract_record_handles_nan_full_text():
+    # Same NaN-truthiness bug, on the `full_text` fallback path: `nan or ""`
+    # returns `nan` (not ""), because bool(nan) is True -- `text` then held
+    # a float, and passing it into extract_dateline()/etc. crashed.
+    example = {
+        "url": "https://www.ice.gov/news/releases/no-text-row",
+        "title": "Some title",
+        "topics": "Narcotics",
+        "full_text": float("nan"),
+    }
+    record = extract_record(dict(example))  # must not raise
+    assert record["text"] == ""
+
+
+def test_extract_record_handles_nan_topics():
+    # classify_action()'s `if topics and ...` has the same bug: with
+    # topics = nan, `"Detainee Death" in topics` raised a TypeError since a
+    # float isn't iterable.
+    example = {
+        "url": "https://www.ice.gov/news/releases/no-topics-row",
+        "title": "Some title",
+        "topics": float("nan"),
+        "full_text": FORT_MYERS_TEXT,
+    }
+    record = extract_record(dict(example))  # must not raise
+    assert record["action_type"] == "sentencing"
+
+
 def test_extract_agencies():
     agencies = extract_agencies(TAMPA_TEXT)
     assert "HSI" in agencies
@@ -153,6 +213,22 @@ def test_extract_agencies():
 
 def test_extract_money():
     assert extract_money(MIAMI_MONEY_TEXT) == ["$39.5 million"]
+
+
+def test_extract_money_stops_at_word_boundary_after_suffix():
+    # Regression test: the (million|billion|M|B) suffix alternation used to
+    # have no trailing word boundary, so a dollar amount immediately
+    # followed by a capitalized word starting with M or B had that word's
+    # leading letter swallowed into the match, e.g. "$500 Monday" wrongly
+    # matched as "$500 M" instead of stopping at "$500".
+    cases = [
+        ("The fine totaled $500 Monday morning after the hearing.", "$500"),
+        ("Court records show a $2,000 Bond was posted for his release.", "$2,000"),
+        ("He forfeited $1,000 Because he failed to appear as ordered.", "$1,000"),
+        ("The judge set bail at $750 Both defendants were released.", "$750"),
+    ]
+    for text, expected in cases:
+        assert extract_money(text) == [expected], text
 
 
 def test_extract_quantities():

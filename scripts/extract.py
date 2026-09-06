@@ -19,10 +19,32 @@ and audited on its own; see tests/test_extract.py.
 
 from __future__ import annotations
 
+import math
 import re
 from typing import Optional
 
 from bs4 import BeautifulSoup
+
+# ---------------------------------------------------------------------------
+# NaN-safe "is this field actually missing?" check
+# ---------------------------------------------------------------------------
+#
+# Rows processed here often come straight from a pandas DataFrame (see
+# pipeline.py's left-merge of the default/html subsets): a column with no
+# value for a given row shows up as a float `nan`, not `None` or `""`. Plain
+# `if value:` / `if not value:` checks get this wrong because
+# `bool(float("nan"))` is `True` in Python -- NaN slips through every plain
+# truthiness guard as if it were valid, present content, and then crashes
+# whatever downstream code tries to treat it as a string. Use this helper
+# instead of bare truthiness anywhere a field might be NaN.
+
+
+def _is_missing(value: object) -> bool:
+    """True for None, NaN, and other falsy values (e.g. "", [])."""
+    if isinstance(value, float) and math.isnan(value):
+        return True
+    return not value
+
 
 # ---------------------------------------------------------------------------
 # HTML -> text  (extends the starter snippet from the assignment brief)
@@ -61,17 +83,24 @@ _DATELINE_RE = re.compile(
     r"^\s*([A-Z][A-Za-z.'\-]*(?:\s[A-Z][A-Za-z.'\-]*)*(?:,\s*[A-Za-z.]+)?)\s*[—–-]\s*"
 )
 
+# Words ICE sometimes leads a release with that look like a dateline (an
+# all-caps word right before a dash) but aren't a location, e.g.
+# "UPDATE - Suspect previously reported at large has been taken into
+# custody." Checked case-insensitively against the matched candidate.
+_DATELINE_FALSE_POSITIVES = {"UPDATE"}
+
 
 def extract_dateline(text: str) -> tuple[Optional[str], str]:
     """Return (dateline_location, text_with_dateline_removed)."""
-    if not text:
+    if _is_missing(text):
         return None, text
     m = _DATELINE_RE.match(text)
     if not m:
         return None, text
     location = m.group(1).strip().rstrip(",")
-    # Guard against false positives: a real dateline is short (<= 5 words).
-    if len(location.split()) > 5:
+    # Guard against false positives: a real dateline is short (<= 5 words)
+    # and isn't one of a small set of known non-location release prefixes.
+    if len(location.split()) > 5 or location.upper() in _DATELINE_FALSE_POSITIVES:
         return None, text
     return location, text[m.end():]
 
@@ -133,7 +162,7 @@ def extract_people(text: str) -> list[dict]:
     deduplicated by "first match wins," so a later match that fills in an
     `origin` the earlier one lacked isn't silently thrown away.
     """
-    if not text:
+    if _is_missing(text):
         return []
 
     people: dict[str, dict] = {}
@@ -183,7 +212,7 @@ _AGENCY_PATTERNS = {
 
 
 def extract_agencies(text: str) -> list[str]:
-    if not text:
+    if _is_missing(text):
         return []
     return [name for name, pat in _AGENCY_PATTERNS.items() if re.search(pat, text)]
 
@@ -192,7 +221,7 @@ def extract_agencies(text: str) -> list[str]:
 # Dollar figures and seizure quantities
 # ---------------------------------------------------------------------------
 
-_MONEY_RE = re.compile(r"\$[\d,]+(?:\.\d+)?\s*(?:million|billion|M|B)?")
+_MONEY_RE = re.compile(r"\$[\d,]+(?:\.\d+)?(?:\s*(?:million|billion|M|B))?\b")
 _QUANTITY_RE = re.compile(
     r"\b(\d[\d,]*(?:\.\d+)?)\s*"
     r"(kilograms?|kilos?|kg|pounds?|lbs?|grams?|g\b|firearms?|weapons?)\b",
@@ -201,13 +230,13 @@ _QUANTITY_RE = re.compile(
 
 
 def extract_money(text: str) -> list[str]:
-    if not text:
+    if _is_missing(text):
         return []
     return _MONEY_RE.findall(text)
 
 
 def extract_quantities(text: str) -> list[dict]:
-    if not text:
+    if _is_missing(text):
         return []
     return [
         {"amount": amt.replace(",", ""), "unit": unit.lower()}
@@ -229,12 +258,13 @@ _ACTION_RULES: list[tuple[str, re.Pattern]] = [
 
 
 def classify_action(topics: Optional[str], text: str) -> str:
-    if topics and "Detainee Death" in topics:
+    if not _is_missing(topics) and "Detainee Death" in topics:
         return "death_in_custody"
-    if topics and topics.strip().lower() == "statement":
+    if not _is_missing(topics) and topics.strip().lower() == "statement":
         return "statement"
+    safe_text = "" if _is_missing(text) else text
     for label, pattern in _ACTION_RULES:
-        if pattern.search(text or ""):
+        if pattern.search(safe_text):
             return label
     return "other"
 
@@ -249,16 +279,19 @@ def extract_record(example: dict) -> dict:
     subset) or an already-parsed `full_text` field (from the default
     subset), and returns the same row plus extracted fields.
     """
-    if example.get("html"):
-        parsed = parse_html(example["html"])
+    html = example.get("html")
+    if not _is_missing(html):
+        parsed = parse_html(html)
         text = parsed["text"]
-        example["title"] = example.get("title") or parsed["title"]
+        title = example.get("title")
+        example["title"] = parsed["title"] if _is_missing(title) else title
         example["word_count"] = parsed["word_count"]
         example["paragraph_count"] = parsed["paragraph_count"]
         example["link_count"] = parsed["link_count"]
         example["image_count"] = parsed["image_count"]
     else:
-        text = example.get("full_text") or ""
+        full_text = example.get("full_text")
+        text = "" if _is_missing(full_text) else full_text
 
     # The field every downstream filter/validator should key off of: it's
     # whatever text extraction actually derived (HTML-derived when available,

@@ -3,4 +3,5 @@ __pycache__/
 .pytest_cache/
 data/extracted.csv
 data/extracted.jsonl
+notes/validation_report.md
 .DS_Store

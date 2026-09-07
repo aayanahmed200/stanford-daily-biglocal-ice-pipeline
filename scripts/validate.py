@@ -18,7 +18,6 @@ checks the extracted accountability fields, not just word/paragraph counts.
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Iterable
 
 import pandas as pd
 
@@ -70,22 +69,35 @@ def validate_dataframe(df: pd.DataFrame) -> dict:
     dupes = df["url"].duplicated().sum() if "url" in df.columns else 0
     issues["duplicate_urls"] = int(dupes)
 
+    # `text` (not `full_text`) is the canonical body field extract_record()
+    # produces either way — HTML-derived when available, falling back to
+    # full_text otherwise (see extract.py). Checking full_text directly here
+    # both skips this check entirely on an HTML-only future scrape (no
+    # full_text column at all) and can flag a row with a perfectly good
+    # derived body just because its separate, unused full_text cell is NaN.
     empty_body = 0
-    if "full_text" in df.columns:
-        empty_body = (df["full_text"].fillna("").str.len() < 50).sum()
+    if "text" in df.columns:
+        empty_body = (df["text"].fillna("").str.len() < 50).sum()
     issues["empty_or_near_empty_body"] = int(empty_body)
 
     bad_ages = 0
     if "extracted_people" in df.columns:
         def _bad_ages(people):
-            return sum(1 for p in (people or []) if not (0 < p.get("age", -1) <= 110))
+            if not isinstance(people, list):
+                return 0  # NaN/None/missing -- nothing to flag
+            return sum(1 for p in people if not (0 < p.get("age", -1) <= 110))
         bad_ages = df["extracted_people"].apply(_bad_ages).sum()
     issues["out_of_range_ages"] = int(bad_ages)
 
     bad_dates = 0
     if "date_normalized" in df.columns:
         def _bad_date(d):
-            if not d:
+            # A NaN float (a genuinely missing date, common with real
+            # scraped data) is falsy but not a string, so `datetime.strptime`
+            # would raise TypeError, not the ValueError this was built to
+            # catch -- checking `isinstance(d, str)` first keeps missing
+            # dates out of this check instead of crashing the pipeline.
+            if not isinstance(d, str) or not d:
                 return False
             try:
                 datetime.strptime(d, "%m/%d/%Y")

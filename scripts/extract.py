@@ -80,14 +80,15 @@ def parse_html(html: str) -> dict:
 # ICE datelines are ALL-CAPS city (optionally ", St." / ", Country"), then an
 # em dash, en dash, or hyphen before the story starts.
 _DATELINE_RE = re.compile(
-    r"^\s*([A-Z][A-Za-z.'\-]*(?:\s[A-Z][A-Za-z.'\-]*)*(?:,\s*[A-Za-z.]+)?)\s*[—–-]\s*"
+    r"^\s*([A-Z][A-Za-z.'\-]*(?:\s[A-Z][A-Za-z.'\-]*)*(?:,\s*[A-Za-z.]+(?:\s[A-Za-z.]+)*)?)\s*[—–-]\s*"
 )
 
 # Words ICE sometimes leads a release with that look like a dateline (an
 # all-caps word right before a dash) but aren't a location, e.g.
 # "UPDATE - Suspect previously reported at large has been taken into
-# custody." Checked case-insensitively against the matched candidate.
-_DATELINE_FALSE_POSITIVES = {"UPDATE"}
+# custody." or "STATEMENT - ICE Acting Director ...". Checked
+# case-insensitively against the matched candidate.
+_DATELINE_FALSE_POSITIVES = {"UPDATE", "STATEMENT"}
 
 
 def extract_dateline(text: str) -> tuple[Optional[str], str]:
@@ -136,7 +137,7 @@ _PERSON_AGE_YO_RE = re.compile(
     \b(?P<name>[A-Z][a-zA-Z'\-]+(?:\s[A-Z][a-zA-Z'\-]+){1,3}),\s*
     a\s+(?P<age>\d{1,3})-year-old
     (?:\s+[a-z][\w\s]*?\s+(?:of|from)\s+
-        (?P<origin>[A-Z][a-zA-Z]+(?:\s[A-Z][a-zA-Z]+)?)
+        (?P<origin>[A-Z][a-zA-Z]+(?:\s(?:and\s+)?[A-Z][a-zA-Z]+){0,2})
     )?
     """,
     re.VERBOSE,
@@ -300,7 +301,7 @@ def extract_record(example: dict) -> dict:
     # that has an `html` field but no `full_text` field at all.
     example["text"] = text
 
-    dateline, body = extract_dateline(text)
+    dateline, _ = extract_dateline(text)
     people = extract_people(text)
 
     example["extracted_location"] = dateline or example.get("location_full_text")

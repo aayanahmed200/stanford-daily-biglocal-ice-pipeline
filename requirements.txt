@@ -1,0 +1,5 @@
+datasets>=2.19
+beautifulsoup4>=4.12
+lxml>=5.0
+pandas>=2.0
+pytest>=8.0

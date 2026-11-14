@@ -6,13 +6,12 @@ A Python pipeline that extracts and validates structured information from 965 pu
 
 ## Overview
 
-The pipeline works from the dataset's raw HTML so the extraction process can be applied to future releases as well as the supplied dataset. It turns narrative text into records that can be filtered and checked for reporting workflows.
+The pipeline works from raw HTML so the extraction process can be applied to future releases as well as the supplied dataset. It turns narrative text into records that can be filtered and checked for reporting workflows.
 
 ## Highlights
 
-- Extracts dateline location, named people where stated, agencies, money amounts, quantities, and a broad action category.
-- Uses both common name/age/origin sentence patterns when identifying people.
-- Does not rely on dataset topic labels alone to classify action types; text cues are used when the labels are too broad.
+- Extracts dateline locations, named people where stated, agencies, money amounts, quantities, and broad action categories.
+- Uses sentence patterns to identify people and text cues to distinguish action types when dataset labels are broad.
 - Validates schema, field completeness, duplicate URLs, body length, ages, and dates.
 
 ## Technology
@@ -32,16 +31,8 @@ Run tests with `pytest tests/`.
 
 ## Notes and limitations
 
-The extraction patterns are precision-first and will miss people described in other ways. The source has no time-of-day field, so dates are date-only. A record is a starting point for analysis, not a citable fact: check each extracted field against the original release before reporting it.
-
-## Project files
-
-- `scripts/pipeline.py` — load, extract, validate, and save.
-- `scripts/extract.py` — HTML parsing and extraction rules.
-- `scripts/validate.py` — schema, completeness, and sanity checks.
-- `tests/` — unit and end-to-end tests.
-- `notes/` — dataset notes and sample validation report.
+The extraction patterns are precision-first and can miss people described in other ways. The source has no time-of-day field, so dates are date-only. Extracted records are a starting point for analysis, not citable facts; check each field against the original release before reporting it. The source dataset is [`stanforddams/biglocal`](https://huggingface.co/datasets/stanforddams/biglocal) and remains subject to its own terms.
 
 ## License
 
-MIT — see `LICENSE`. The source dataset is [`stanforddams/biglocal`](https://huggingface.co/datasets/stanforddams/biglocal); check its terms before reusing the underlying data.
+MIT — see `LICENSE`.

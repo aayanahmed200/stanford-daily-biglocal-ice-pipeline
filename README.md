@@ -6,7 +6,7 @@ A Python pipeline that extracts and validates structured information from 965 pu
 
 ## Overview
 
-The pipeline works from raw HTML so the extraction process can be applied to future releases as well as the supplied dataset. It turns narrative text into records that can be filtered and checked for reporting workflows.
+The pipeline works from raw HTML so the extraction process can be applied to future releases as well as the supplied dataset. It turns narrative text into structured records for reporting workflows; check extracted fields against the original release before publication.
 
 ## Highlights
 
@@ -29,9 +29,6 @@ python scripts/pipeline.py --out data/extracted.csv --report notes/validation_re
 
 Run tests with `pytest tests/`.
 
-## Notes and limitations
-
-The extraction patterns are precision-first and can miss people described in other ways. The source has no time-of-day field, so dates are date-only. Extracted records are a starting point for analysis, not citable facts; check each field against the original release before reporting it. The source dataset is [`stanforddams/biglocal`](https://huggingface.co/datasets/stanforddams/biglocal) and remains subject to its own terms.
 
 ## License
 

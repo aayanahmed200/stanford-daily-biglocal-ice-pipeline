@@ -2,18 +2,19 @@
 
 [![Python](https://img.shields.io/badge/python-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
 [![Hugging Face](https://img.shields.io/badge/hugging%20face-FFD21E?style=for-the-badge&logo=huggingface&logoColor=black)](https://huggingface.co/)
+**Repository:** [stanford-daily-biglocal-ice-pipeline](https://github.com/aayanahmed200/stanford-daily-biglocal-ice-pipeline)
 
 A data extraction and validation pipeline for [`stanforddams/biglocal`](https://huggingface.co/datasets/stanforddams/biglocal), 965 press releases published by U.S. Immigration and Customs Enforcement (ICE), curated by [Big Local News](https://biglocalnews.org/) at Stanford University for the Datathon for Social Good 2026. Built for a data journalism assignment at the Stanford Daily.
 
 Pipeline: [`scripts/pipeline.py`](scripts/pipeline.py) · Extraction rules: [`scripts/extract.py`](scripts/extract.py) · Validation: [`scripts/validate.py`](scripts/validate.py)
 
-## Why this exists
+## Overview
 
 Big Local News's brief for this dataset asks for two deliverables: a structured record of the date, time, and location of each enforcement action described in a press release, with as much identifying detail about the people named as the release states — and a pipeline that can keep extracting that structure from press releases published in the future, not just the 965 already scraped. That second requirement is why this pipeline runs on the dataset's raw `html` subset (what a future scrape actually looks like) rather than only the pre-parsed `full_text` column, and why every extraction rule is tested against real release text before being trusted.
 
 Big Local News gathers and structures data like this so that local newsrooms can do accountability reporting without needing their own data specialists. This is exactly that kind of work at a smaller scale: ICE names people, ages, nationalities, and case outcomes in its own releases, but only in narrative prose — this pipeline turns that prose back into structured fields a reporter can filter, count, and cross-reference.
 
-## The data
+## Data & methodology
 
 The dataset ships two joinable subsets: a **default** subset with 965 rows of pre-parsed metadata (`title`, `topics`, `date_normalized`, `city`/`state`, `full_text`, ...), and an **html** subset with the raw source HTML for each release. Full field list and coverage stats are on the [dataset card](https://huggingface.co/datasets/stanforddams/biglocal).
 
@@ -24,7 +25,7 @@ Two things shaped the extraction rules more than anything else:
 
 Full notes on dataset structure, extraction decisions, and known limitations: [`notes/dataset-notes.md`](notes/dataset-notes.md).
 
-## What the pipeline extracts
+## Capabilities
 
 For each press release:
 
@@ -45,7 +46,7 @@ For each press release:
 
 The extraction rules are tested against real dataset excerpts (not invented examples) in [`tests/test_extract.py`](tests/test_extract.py) — 22 tests covering datelines, both person-naming patterns, agency/money/quantity extraction, action classification, HTML parsing, and NaN-safe handling of missing fields (e.g. unmatched rows from the html/full_text left-merge), all passing. [`tests/test_pipeline_smoke.py`](tests/test_pipeline_smoke.py) runs the full extract → validate flow end-to-end on a small hand-picked sample, including a deliberately malformed row, to confirm the pipeline degrades gracefully instead of crashing on bad data. A sample report from that smoke test is in [`notes/validation_report_sample.md`](notes/validation_report_sample.md); it understates real coverage because the sample rows use the dataset's truncated preview text, not full release bodies.
 
-## Tech stack
+## Technology
 
 - Python 3
 - [`datasets`](https://pypi.org/project/datasets/) (Hugging Face, dataset loading)
@@ -53,7 +54,7 @@ The extraction rules are tested against real dataset excerpts (not invented exam
 - `pandas` (dataframes, CSV/JSONL output)
 - `pytest` for the extraction, validation, and pipeline tests
 
-## Project structure
+## Repository structure
 
 - `scripts/extract.py` — HTML parsing and structured entity extraction rules
 - `scripts/validate.py` — schema, completeness, and sanity-check validation
@@ -65,7 +66,7 @@ The extraction rules are tested against real dataset excerpts (not invented exam
 - `notes/validation_report_sample.md` — sample validation report
 - `LICENSE`
 
-## Setup
+## Run locally
 
 ```bash
 python3 -m venv .venv

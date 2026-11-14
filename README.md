@@ -2,11 +2,11 @@
 
 [![Python](https://img.shields.io/badge/python-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/) [![Hugging Face](https://img.shields.io/badge/hugging%20face-FFD21E?style=for-the-badge&logo=huggingface&logoColor=black)](https://huggingface.co/)
 
-A Python pipeline that extracts and validates structured information from 965 public press releases in the Big Local News ICE dataset.
+A Python pipeline for extracting and validating structured information from 965 public press releases in the Big Local News ICE dataset.
 
 ## Overview
 
-The pipeline works from raw HTML so the extraction process can be applied to future releases as well as the supplied dataset. It turns narrative text into structured records for reporting workflows; check extracted fields against the original release before publication.
+The pipeline works from raw HTML so the extraction process can also be applied to future releases. It turns narrative text into structured records for reporting workflows.
 
 ## Highlights
 
@@ -27,8 +27,15 @@ pip install -r requirements.txt
 python scripts/pipeline.py --out data/extracted.csv --report notes/validation_report.md
 ```
 
-Run tests with `pytest tests/`.
+Run tests with:
 
+```bash
+pytest tests/
+```
+
+## Notes and limitations
+
+The pipeline uses extraction rules and validation checks; extracted fields are not guaranteed to be correct. Check each record against the original press release before using it in reporting or publication.
 
 ## License
 

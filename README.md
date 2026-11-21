@@ -42,4 +42,4 @@ Extraction is rule-based and some fields may be missing, ambiguous or incorrectl
 
 ## License
 
-MIT. See [LICENSE](LICENSE).
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for the full text.

@@ -2,6 +2,8 @@
 
 **Project page:** [aayanahmed200.github.io/stanford-daily-biglocal-ice-pipeline](https://aayanahmed200.github.io/stanford-daily-biglocal-ice-pipeline/)
 
+**Series:** [The Price of Prestige](https://aayanahmed200.github.io/stanford-daily-price-of-prestige/) · [PlasticList](https://aayanahmed200.github.io/stanford-daily-plasticlist-eda/) · [Blotter fiction](https://aayanahmed200.github.io/stanford-daily-blotter-fiction/)
+
 [![Python](https://img.shields.io/badge/python-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/) [![Hugging Face](https://img.shields.io/badge/hugging%20face-FFD21E?style=for-the-badge&logo=huggingface&logoColor=black)](https://huggingface.co/)
 
 A Python pipeline for extracting and validating structured information from 965 public press releases in the Big Local News ICE dataset.

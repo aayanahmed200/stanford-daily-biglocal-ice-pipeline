@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reading 965 ICE press releases as data — Stanford Daily</title>
+<meta name="description" content="A rules-based extraction and validation pipeline that turns 965 public ICE press releases into structured records for reporting.">
+<link rel="canonical" href="https://aayanahmed200.github.io/stanford-daily-biglocal-ice-pipeline/">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Reading 965 ICE press releases as data">
+<meta property="og:description" content="Turning narrative press releases into structured records, and the validation that decides which records are usable.">
+<meta property="og:url" content="https://aayanahmed200.github.io/stanford-daily-biglocal-ice-pipeline/">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="series.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap masthead__inner">
+    <a class="masthead__series" href="https://github.com/aayanahmed200">Stanford Daily · Data</a>
+    <nav class="masthead__nav" aria-label="Series">
+      <a href="https://aayanahmed200.github.io/stanford-daily-price-of-prestige/">The Price of Prestige</a>
+      <a href="https://aayanahmed200.github.io/stanford-daily-plasticlist-eda/">PlasticList</a>
+      <a href="https://aayanahmed200.github.io/stanford-daily-blotter-fiction/">Blotter fiction</a>
+      <a href="./" aria-current="page">ICE pipeline</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap report">
+  <p class="kicker">Data pipeline</p>
+  <h1>Reading 965 ICE press releases as data</h1>
+  <p class="standfirst">A rules-based extractor that turns narrative press releases into structured records, and a validator that says which records are fit to report from.</p>
+  <p class="byline">Aayan Ahmed · Big Local News ICE dataset · Python</p>
+
+  <div class="stats">
+    <div class="stats__item">
+      <span class="stats__value">965</span>
+      <span class="stats__label">public press releases in the source dataset</span>
+    </div>
+    <div class="stats__item">
+      <span class="stats__value">6</span>
+      <span class="stats__label">fields extracted per release, from dateline to action type</span>
+    </div>
+    <div class="stats__item">
+      <span class="stats__value">8</span>
+      <span class="stats__label">validation checks on schema, completeness and sanity</span>
+    </div>
+    <div class="stats__item">
+      <span class="stats__value">HTML</span>
+      <span class="stats__label">parsed from the original source, so future releases can be run too</span>
+    </div>
+  </div>
+
+  <div class="prose">
+    <p>Press releases are written to be read, not counted. The useful facts in them — where an action happened, which agency ran it, whether money or a headcount is involved — sit inside sentences that vary from release to release, which is why a pipeline that works on this corpus has to be re-runnable rather than a one-off scrape.</p>
+
+    <p>This one works from the raw HTML of each release in three stages. <strong>Extract</strong> pulls the dateline location, named people where they are stated, agencies mentioned, money amounts, quantities, and a broad action category; sentence patterns locate the people, and text cues separate action types where the dataset's own labels are too broad to be useful. <strong>Validate</strong> then checks the schema, field completeness, duplicate URLs, body length, out-of-range ages and unparseable dates. <strong>Report</strong> writes both a tidy CSV for analysis and a markdown validation report, so a record that failed a check is visible rather than silently dropped.</p>
+
+    <p>The validation step is the part that makes the output safe to use. On a five-row smoke test of the pipeline, schema checks passed and dates parsed cleanly, while one record had a near-empty body and one date could not be parsed — 4 of 5 records usable. Those numbers describe the smoke test, not the full corpus; the full run writes its own report.</p>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <caption>Field coverage on the five-row smoke test (<code>tests/test_pipeline_smoke.py</code>), not the full 965-record run.</caption>
+      <thead>
+        <tr><th scope="col">Field</th><th scope="col" class="num">Extracted</th><th scope="col" class="num">Coverage</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>extracted_location</code></td><td class="num">4 / 5</td><td class="num">80.0%</td></tr>
+        <tr><td><code>date_normalized</code></td><td class="num">5 / 5</td><td class="num">100.0%</td></tr>
+        <tr><td><code>extracted_people</code></td><td class="num">3 / 5</td><td class="num">60.0%</td></tr>
+        <tr><td><code>agencies_mentioned</code></td><td class="num">4 / 5</td><td class="num">80.0%</td></tr>
+        <tr><td><code>action_type</code></td><td class="num">5 / 5</td><td class="num">100.0%</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="actions">
+    <a class="button" href="https://github.com/aayanahmed200/stanford-daily-biglocal-ice-pipeline">Code and notes</a>
+    <a class="button button--ghost" href="https://github.com/aayanahmed200/stanford-daily-biglocal-ice-pipeline/blob/main/notes/validation_report_sample.md">Sample validation report</a>
+  </div>
+
+  <div class="aside">
+    <p><strong>Before publishing anything from this.</strong> The extractor is pattern-based, so a field can be confidently wrong. Every record is meant to be checked against its original press release before it appears in a story; the validation report flags which records are weakest, not which are correct.</p>
+    <p>Source: Big Local News' public ICE press-release dataset. Pipeline and page by Aayan Ahmed for the Stanford Daily Tech Bootcamp.</p>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap site-footer__inner">
+    <span>Stanford Daily Tech Bootcamp · data journalism</span>
+    <span><a href="https://github.com/aayanahmed200/stanford-daily-biglocal-ice-pipeline">Repository</a> · <a href="https://github.com/TheStanfordDaily/tech-practicum">Practicum</a></span>
+  </div>
+</footer>
+
+</body>
+</html>

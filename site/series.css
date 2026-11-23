@@ -1,0 +1,381 @@
+/* Stanford Daily series — shared editorial stylesheet.
+   One file, no build step, used by every project page in the series so the
+   four reports read as one publication rather than four templates. */
+
+:root {
+  --paper: #fbfaf8;
+  --paper-raised: #ffffff;
+  --ink: #1c1a17;
+  --muted: #6b6560;
+  --cardinal: #8c1515;
+  --cardinal-dark: #6b1010;
+  --hairline: #e4ded4;
+  --rule: #d9d2c6;
+  --focus: #0b5fff;
+  --serif: "Source Serif 4", "Source Serif Pro", Georgia, "Times New Roman", serif;
+  --sans: "Source Sans 3", "Source Sans Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --measure: 68ch;
+  --shadow: 0 1px 2px rgba(28, 26, 23, 0.05), 0 8px 24px rgba(28, 26, 23, 0.06);
+}
+
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 17px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+img, svg, iframe { max-width: 100%; }
+
+a {
+  color: var(--cardinal);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+
+a:hover { color: var(--cardinal-dark); }
+
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+.wrap {
+  width: min(100% - 48px, 1080px);
+  margin-inline: auto;
+}
+
+/* --- Masthead ------------------------------------------------------- */
+
+.masthead {
+  border-bottom: 3px solid var(--cardinal);
+  background: var(--paper-raised);
+}
+
+.masthead__inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px 24px;
+  padding: 18px 0 16px;
+}
+
+.masthead__series {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--cardinal);
+  text-decoration: none;
+}
+
+.masthead__nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  font-size: 0.9rem;
+}
+
+.masthead__nav a { color: var(--ink); text-decoration: none; }
+.masthead__nav a:hover { color: var(--cardinal); text-decoration: underline; }
+.masthead__nav a[aria-current="page"] { color: var(--cardinal); font-weight: 600; }
+
+/* --- Article head --------------------------------------------------- */
+
+.report { padding: 56px 0 72px; }
+
+.kicker {
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--cardinal);
+  margin: 0 0 14px;
+}
+
+h1 {
+  font-family: var(--serif);
+  font-size: clamp(2.1rem, 5vw, 3.1rem);
+  line-height: 1.1;
+  letter-spacing: -0.015em;
+  margin: 0 0 16px;
+  color: var(--ink);
+}
+
+.standfirst {
+  font-family: var(--serif);
+  font-size: clamp(1.08rem, 2.2vw, 1.3rem);
+  line-height: 1.5;
+  color: #3c3833;
+  max-width: var(--measure);
+  margin: 0 0 20px;
+}
+
+.byline {
+  font-size: 0.88rem;
+  color: var(--muted);
+  border-top: 1px solid var(--hairline);
+  padding-top: 14px;
+  margin: 0 0 8px;
+  max-width: var(--measure);
+}
+
+.byline a { color: var(--muted); }
+
+/* --- Figures and key numbers ---------------------------------------- */
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 1px;
+  background: var(--hairline);
+  border: 1px solid var(--hairline);
+  border-radius: 10px;
+  overflow: hidden;
+  margin: 36px 0 12px;
+}
+
+.stats__item {
+  background: var(--paper-raised);
+  padding: 20px 22px 18px;
+}
+
+.stats__value {
+  display: block;
+  font-family: var(--serif);
+  font-size: 1.85rem;
+  line-height: 1.15;
+  color: var(--cardinal);
+  margin-bottom: 4px;
+}
+
+.stats__label {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+caption, .caption {
+  caption-side: bottom;
+  font-size: 0.84rem;
+  color: var(--muted);
+  text-align: left;
+  padding-top: 10px;
+  line-height: 1.5;
+}
+
+figure { margin: 34px 0; }
+
+figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--hairline);
+  border-radius: 10px;
+  background: var(--paper-raised);
+  box-shadow: var(--shadow);
+}
+
+figcaption {
+  font-size: 0.84rem;
+  color: var(--muted);
+  padding-top: 10px;
+  line-height: 1.5;
+}
+
+/* --- Body copy ------------------------------------------------------ */
+
+.prose {
+  max-width: var(--measure);
+  font-family: var(--serif);
+  font-size: 1.09rem;
+  line-height: 1.72;
+}
+
+.prose > p { margin: 0 0 1.15em; }
+
+.prose > p:first-of-type::first-letter {
+  float: left;
+  font-size: 3.4em;
+  line-height: 0.86;
+  padding: 0.06em 0.1em 0 0;
+  color: var(--cardinal);
+  font-weight: 600;
+}
+
+.prose h2 {
+  font-family: var(--sans);
+  font-size: 1.05rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--cardinal);
+  margin: 2.6em 0 0.8em;
+}
+
+.prose em { font-style: italic; }
+.prose strong { font-weight: 700; color: var(--ink); }
+
+.prose hr {
+  border: 0;
+  border-top: 1px solid var(--hairline);
+  margin: 2.4em 0;
+}
+
+.prose blockquote {
+  margin: 1.8em 0;
+  padding: 0 0 0 20px;
+  border-left: 3px solid var(--cardinal);
+  color: #3c3833;
+  font-style: italic;
+}
+
+.prose ul, .prose ol { padding-left: 1.3em; margin: 0 0 1.15em; }
+.prose li { margin-bottom: 0.4em; }
+
+.prose code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.88em;
+  background: #f2eee7;
+  padding: 0.12em 0.35em;
+  border-radius: 4px;
+}
+
+.prose pre {
+  background: #23201b;
+  color: #f5f1ea;
+  padding: 16px 18px;
+  border-radius: 8px;
+  overflow-x: auto;
+  font-size: 0.86rem;
+  line-height: 1.55;
+}
+
+.prose pre code { background: none; padding: 0; color: inherit; }
+
+/* Tables, used by the pipeline validation report. */
+.table-wrap { overflow-x: auto; margin: 28px 0; }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--sans);
+  font-size: 0.9rem;
+}
+
+thead th {
+  text-align: left;
+  font-size: 0.76rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  border-bottom: 1px solid var(--rule);
+  padding: 10px 14px 8px 0;
+  white-space: nowrap;
+}
+
+tbody td {
+  padding: 11px 14px 11px 0;
+  border-bottom: 1px solid var(--hairline);
+  vertical-align: top;
+}
+
+tbody tr:last-child td { border-bottom: 0; }
+
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; padding-right: 0; }
+
+/* --- Calls to action and cross-links -------------------------------- */
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 32px 0 0;
+}
+
+.button {
+  display: inline-block;
+  padding: 11px 20px;
+  border-radius: 7px;
+  background: var(--cardinal);
+  color: #fff;
+  font-size: 0.92rem;
+  font-weight: 600;
+  text-decoration: none;
+  border: 1px solid var(--cardinal);
+}
+
+.button:hover { background: var(--cardinal-dark); color: #fff; }
+
+.button--ghost {
+  background: transparent;
+  color: var(--cardinal);
+  border-color: var(--rule);
+}
+
+.button--ghost:hover { background: #f4efe8; color: var(--cardinal-dark); }
+
+.aside {
+  max-width: var(--measure);
+  border-top: 1px solid var(--hairline);
+  margin: 44px 0 0;
+  padding-top: 18px;
+  font-size: 0.92rem;
+  color: var(--muted);
+}
+
+.aside p { margin: 0 0 0.7em; }
+
+/* --- Footer --------------------------------------------------------- */
+
+.site-footer {
+  border-top: 1px solid var(--hairline);
+  background: var(--paper-raised);
+  margin-top: 20px;
+}
+
+.site-footer__inner {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 28px;
+  justify-content: space-between;
+  padding: 22px 0 30px;
+  font-size: 0.84rem;
+  color: var(--muted);
+}
+
+.site-footer a { color: var(--muted); }
+.site-footer a:hover { color: var(--cardinal); }
+
+/* --- Narrow screens ------------------------------------------------- */
+
+@media (max-width: 620px) {
+  .wrap { width: min(100% - 32px, 1080px); }
+  .report { padding: 36px 0 52px; }
+  .prose { font-size: 1.04rem; }
+  .masthead__nav { gap: 14px; font-size: 0.85rem; }
+  .stats__item { padding: 16px 18px; }
+  .prose > p:first-of-type::first-letter { font-size: 3em; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}
+
+@media print {
+  .masthead__nav, .actions, .site-footer { display: none; }
+  body { background: #fff; font-size: 11pt; }
+  .report { padding: 0; }
+  a { color: var(--ink); }
+}

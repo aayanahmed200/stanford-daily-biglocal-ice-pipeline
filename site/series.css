@@ -59,7 +59,7 @@ a:hover { color: var(--cardinal-dark); }
 
 .masthead {
   border-bottom: 3px solid var(--cardinal);
-  background: var(--paper-raised);
+  background: var(--paper);
 }
 
 .masthead__inner {
@@ -341,7 +341,7 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; padding-
 
 .site-footer {
   border-top: 1px solid var(--hairline);
-  background: var(--paper-raised);
+  background: var(--paper);
   margin-top: 20px;
 }
 
@@ -357,6 +357,18 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; padding-
 
 .site-footer a { color: var(--muted); }
 .site-footer a:hover { color: var(--cardinal); }
+
+/* The masthead and footer are page-wide bars: their paper and rules meet the
+   viewport edges and only the text inside them is inset. Two classes of
+   specificity here so the bar overrides the centred .wrap column it also
+   carries, including inside the narrow-screen media query below. */
+.masthead .masthead__inner,
+.site-footer .site-footer__inner {
+  width: 100%;
+  max-width: none;
+  margin-inline: 0;
+  padding-inline: clamp(20px, 2.5vw, 48px);
+}
 
 /* --- Narrow screens ------------------------------------------------- */
 

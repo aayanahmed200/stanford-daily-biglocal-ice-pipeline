@@ -1,42 +1,60 @@
-# Stanford Daily: Big Local News Extraction Pipeline
+# Big Local News ICE Data Extraction Pipeline
 
-**Live:** [aayanahmed200.github.io/stanford-daily-biglocal-ice-pipeline](https://aayanahmed200.github.io/stanford-daily-biglocal-ice-pipeline/)
+> A Python pipeline that extracts and validates structured records from the Stanford Daily Tech Practicum's Big Local News ICE press-release dataset.
 
-**Series:** [The Price of Prestige](https://aayanahmed200.github.io/stanford-daily-price-of-prestige/) · [PlasticList](https://aayanahmed200.github.io/stanford-daily-plasticlist-eda/) · [Blotter fiction](https://aayanahmed200.github.io/stanford-daily-blotter-fiction/)
+**Live project page:** [aayanahmed200.github.io/stanford-daily-biglocal-ice-pipeline](https://aayanahmed200.github.io/stanford-daily-biglocal-ice-pipeline/)
 
-[![Python](https://img.shields.io/badge/python-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/) [![Hugging Face](https://img.shields.io/badge/hugging%20face-FFD21E?style=for-the-badge&logo=huggingface&logoColor=black)](https://huggingface.co/) [![GitHub Actions](https://img.shields.io/badge/github%20actions-2088FF?style=for-the-badge&logo=githubactions&logoColor=white)](https://github.com/features/actions)
+**Stanford Daily series:** [The Price of Prestige](https://aayanahmed200.github.io/stanford-daily-price-of-prestige/) · [PlasticList EDA](https://aayanahmed200.github.io/stanford-daily-plasticlist-eda/) · [Blotter Fiction](https://aayanahmed200.github.io/stanford-daily-blotter-fiction/)
 
-A Python pipeline for extracting and validating structured information from 965 public press releases in the Big Local News ICE dataset.
+[![Python](https://img.shields.io/badge/python-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/) [![Hugging Face](https://img.shields.io/badge/hugging%20face-FFD21E?style=for-the-badge&logo=huggingface&logoColor=black)](https://huggingface.co/) [![Pandas](https://img.shields.io/badge/pandas-150458?style=for-the-badge&logo=pandas&logoColor=white)](https://pandas.pydata.org/) [![GitHub Actions](https://img.shields.io/badge/github%20actions-2088FF?style=for-the-badge&logo=githubactions&logoColor=white)](https://github.com/features/actions)
 
 ## Overview
 
-The pipeline works from raw HTML so the extraction process can also be applied to future releases. It turns narrative text into structured records for reporting workflows, then writes a validation report that says how much of the output is usable.
+The pipeline processes the public `stanforddams/biglocal` dataset, which contains ICE-related press-release records. It extracts structured fields from release text and HTML, including dateline locations, named people where stated, agencies, money amounts, quantities, and broad action categories. A validation stage checks the resulting records and produces a report describing missing or suspicious fields.
 
-## How it was made
+The project page documents the pipeline and its validation approach; it is not a claim that all extracted fields are fully verified.
 
-The pipeline reads the raw HTML bodies of the press releases rather than a pre-parsed export, so the same code can be pointed at a future release. `scripts/extract.py` holds the extractors — dateline locations, named people, agencies, money amounts, quantities and broad action categories — built from sentence patterns to find people and from text cues to separate action types where the dataset's own labels are too broad.
+## Key features
 
-`scripts/validate.py` then checks schema conformance, field completeness, duplicate URLs, body length, ages and dates, and reports what failed instead of dropping records silently. `scripts/pipeline.py` runs both stages and writes the CSV and the report in one pass, which is how `notes/validation_report_sample.md` was produced. The project page is static HTML on the shared series stylesheet, published by a GitHub Actions workflow on every push to `main`.
+- Loads the dataset's pre-parsed and HTML subsets and joins records by URL.
+- Extracts locations, people, agencies, amounts, quantities, and action categories.
+- Validates schema conformance, field completeness, duplicate URLs, body length, ages, and dates.
+- Writes a structured CSV or JSONL output plus a Markdown validation report.
+- Includes tests for extraction, validation, and end-to-end pipeline behaviour.
 
-## Highlights
+## Implementation
 
-- Extracts dateline locations, named people where stated, agencies, money amounts, quantities, and broad action categories.
-- Uses sentence patterns to identify people and text cues to distinguish action types when dataset labels are broad.
-- Validates schema, field completeness, duplicate URLs, body length, ages and dates, then reports what failed instead of dropping it silently.
+The extraction rules are in `scripts/extract.py`, validation is in `scripts/validate.py`, and `scripts/pipeline.py` runs both stages. The pipeline uses Hugging Face `datasets` to load the public dataset, Beautiful Soup and lxml to work with HTML, and pandas to assemble and write records.
 
-## Repository contents
+The project page is static HTML in `site/` and is published to GitHub Pages by GitHub Actions when changes are pushed to `main`.
 
-- `scripts/extract.py` — the field extractors.
-- `scripts/validate.py` — schema, completeness and sanity checks.
-- `scripts/pipeline.py` — runs extraction and validation end to end, writing the CSV and the report.
-- `site/` — the published project page and the shared series stylesheet.
-- `notes/dataset-notes.md`, `notes/validation_report_sample.md` — dataset notes and a five-row smoke-test report.
-- `tests/` — extractor, validator and pipeline smoke tests.
+## Repository structure
 
-## Notes and limitations
+- `scripts/extract.py` — field extraction rules.
+- `scripts/validate.py` — schema, completeness, and sanity checks.
+- `scripts/pipeline.py` — end-to-end loading, extraction, validation, and export.
+- `data/` — location for generated structured output.
+- `notes/` — source-dataset notes and validation-report examples.
+- `tests/` — extractor, validator, and pipeline tests.
+- `site/` — published project page and shared series stylesheet.
+- `requirements.txt` — Python dependencies.
 
-The pipeline uses extraction rules and validation checks; extracted fields are not guaranteed to be correct. Each record should be checked against the original press release before it is used in reporting or publication. The coverage figures on the project page come from a five-row smoke test, not the full 965-record run.
+## Run locally
+
+Install dependencies and run the pipeline from the repository root:
+
+```bash
+python -m venv .venv
+python -m pip install -r requirements.txt
+python scripts/pipeline.py --out data/extracted.csv --report notes/validation_report.md
+```
+
+The script downloads the dataset from Hugging Face, so a network connection is required. Use `--out`, `--report`, and `--min-word-count` to change the output paths or minimum body length.
+
+## Status and limitations
+
+The extraction logic uses rules and text cues, so extracted values are candidates for review rather than verified facts. Records should be checked against their original press releases before use in reporting or publication. The coverage figures shown on the project page are based on a five-row smoke-test report, not a completed full-dataset validation run.
 
 ## License
 
-MIT — see `LICENSE`.
+MIT. See [LICENSE](LICENSE).

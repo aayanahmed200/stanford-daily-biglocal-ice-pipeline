@@ -39,21 +39,9 @@ The project page is static HTML in `site/` and is published to GitHub Pages by G
 - `site/` — published project page and shared series stylesheet.
 - `requirements.txt` — Python dependencies.
 
-## Run locally
-
-Install dependencies and run the pipeline from the repository root:
-
-```bash
-python -m venv .venv
-python -m pip install -r requirements.txt
-python scripts/pipeline.py --out data/extracted.csv --report notes/validation_report.md
-```
-
-The script downloads the dataset from Hugging Face, so a network connection is required. Use `--out`, `--report`, and `--min-word-count` to change the output paths or minimum body length.
-
 ## Status and limitations
 
-The extraction logic uses rules and text cues, so extracted values are candidates for review rather than verified facts. Records should be checked against their original press releases before use in reporting or publication. The coverage figures shown on the project page are based on a five-row smoke-test report, not a completed full-dataset validation run.
+The extraction logic uses rules and text cues, so extracted values are candidates for review rather than verified facts. Records should be checked against their original press releases before use in reporting or publication. The coverage figures shown on the project page are based on a five-row smoke-test report, not a completed full-dataset validation run. The pipeline downloads its dataset from Hugging Face, so a run needs network access, and its output paths and minimum body length are configurable.
 
 ## License
 

@@ -14,7 +14,7 @@ The pipeline processes the public `stanforddams/biglocal` dataset, which contain
 
 The project page documents the pipeline and its validation approach; it is not a claim that all extracted fields are fully verified.
 
-## Key features
+## Highlights
 
 - Loads the dataset's pre-parsed and HTML subsets and joins records by URL.
 - Extracts locations, people, agencies, amounts, quantities, and action categories.
